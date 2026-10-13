@@ -1,0 +1,291 @@
+.tag-add {
+  display: flex;
+  gap: 12px;
+  padding: 18px 20px;
+  border-bottom: 2px solid var(--line);
+}
+
+.tag-add input {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 16px;
+  font-family: inherit;
+  outline: none;
+}
+
+.tag-add input:focus {
+  border-color: var(--main);
+}
+
+.tag-add button {
+  flex-shrink: 0;
+  background: var(--main);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 22px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.tag-list {
+  position: relative;
+  overflow-y: auto;
+  padding: 8px 20px 18px 20px;
+}
+
+.tag-sort {
+  display: flex;
+  gap: 4px;
+  width: fit-content;
+  max-width: calc(100% - 32px);
+  margin: 16px 16px 0;
+  padding: 4px;
+  border-radius: 999px;
+  background: #e2e8f0;
+}
+
+.tag-sort-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  padding: 8px 16px;
+  color: #64748b;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.tag-sort-btn .icon {
+  font-family: "Material Symbols Outlined";
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  line-height: 1;
+  font-variation-settings: "FILL" 0, "wght" 500, "GRAD" 0, "opsz" 20;
+}
+
+.tag-sort-btn.on .icon {
+  font-variation-settings: "FILL" 1, "wght" 500, "GRAD" 0, "opsz" 20;
+}
+
+.tag-sort-btn .sort-mark {
+  font-size: 14px;
+  font-variation-settings: "FILL" 0, "wght" 600, "GRAD" 0, "opsz" 20;
+}
+
+.tag-sort-btn.on {
+  background: #fff;
+  color: #0369a1;
+}
+
+.tag-item {
+  position: relative;
+  display: block;
+  padding: 16px 210px 16px 4px;
+  border-bottom: 1px solid #eef2f7;
+}
+
+.tag-item:last-child {
+  border-bottom: none;
+}
+
+.tag-hash {
+  display: inline-block;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--main-dark);
+  background: #e0f2fe;
+  border: 1px solid #bae6fd;
+  padding: 7px 16px;
+  border-radius: 10px;
+}
+
+.tag-meaning {
+  margin-top: 8px;
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.tag-data {
+  margin-top: 4px;
+  font-size: 14px;
+  color: var(--sub);
+  line-height: 1.5;
+}
+
+.tag-summary {
+  margin-top: 4px;
+  font-size: 14px;
+  color: var(--ink);
+  line-height: 1.5;
+}
+
+.tag-corner {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 0;
+  width: 196px;
+}
+
+.tag-corner .gauge-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0;
+  padding: 0;
+  overflow: visible;
+}
+
+.tag-info b {
+  color: var(--ink);
+}
+
+.tag-score {
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--main-dark);
+  flex-shrink: 0;
+}
+
+.tag-score small {
+  font-size: 12px;
+  color: var(--sub);
+  font-weight: 600;
+}
+
+.score-card {
+  margin-top: 16px;
+}
+
+.score-title {
+  padding: 20px 20px 0 20px;
+}
+
+.gauge-grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding: 16px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.gauge-card {
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  padding: 12px 8px;
+  text-align: center;
+}
+
+.gauge-name {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--ink);
+  margin-bottom: 4px;
+  overflow-wrap: anywhere;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gauge-meaning {
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--ink);
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gauge-sub {
+  font-size: 12px;
+  color: var(--sub);
+  margin-bottom: 8px;
+}
+
+.gauge-chart {
+  width: 100%;
+  height: 150px;
+}
+
+.gauge-card.is-compact {
+  border: none;
+  padding: 0;
+}
+
+.gauge-card.is-compact .gauge-sub {
+  margin-bottom: 0;
+}
+
+.gauge-card.is-compact .gauge-chart {
+  height: 78px;
+}
+
+@media (max-width: 900px) {
+  .gauge-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .score-title {
+    padding: 16px 16px 0;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  .gauge-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .tag-add {
+    flex-direction: column;
+    padding: 14px;
+  }
+
+  .tag-add button {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .tag-list {
+    padding: 4px 14px 14px;
+  }
+
+  .tag-item {
+    padding-right: 148px;
+  }
+
+  .tag-corner {
+    top: 50%;
+    transform: translateY(-50%);
+    width: 140px;
+  }
+
+  .tag-hash {
+    font-size: 15px;
+    overflow-wrap: anywhere;
+  }
+
+  .tag-meaning,
+  .tag-data,
+  .tag-summary {
+    font-size: 13px;
+  }
+}
