@@ -49,6 +49,8 @@ function addTag() {
     meaning: '含义分析中',
     data: '已加入分析队列 · 正在抓取',
     summary: '拆解总结生成中',
+    adLevel: '中',
+    countries: '分析中',
     plays: 0,
     strength: 70,
     score: 70,
@@ -93,7 +95,7 @@ onBeforeUnmount(() => {
         >
           <span class="icon" aria-hidden="true">{{ option.icon }}</span>
           {{ option.label }}
-          <span class="icon sort-mark" aria-hidden="true">arrow_downward</span>
+          <span v-if="sortKey === option.id" class="icon sort-mark" aria-hidden="true">arrow_downward</span>
         </button>
       </div>
       <div ref="listEl" v-scroll-always class="tag-list">
@@ -102,7 +104,11 @@ onBeforeUnmount(() => {
             <div class="tag-hash">{{ item.tag }}</div>
             <div class="tag-meaning">{{ item.meaning }}</div>
             <div class="tag-data">{{ item.data }}</div>
-            <div class="tag-summary">{{ item.summary }}</div>
+            <div class="tag-facts">
+              <p><span>广告浓度：</span><b :class="`is-${item.adLevel}`">{{ item.adLevel }}</b></p>
+              <p><span>主要国家：</span>{{ item.countries }}</p>
+            </div>
+            <div class="tag-summary"><span>标签内容总结：</span>{{ item.summary }}</div>
           </div>
           <div class="tag-corner">
             <div class="gauge-grid">

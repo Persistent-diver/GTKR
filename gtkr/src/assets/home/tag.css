@@ -126,11 +126,47 @@
   line-height: 1.5;
 }
 
+.tag-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin-top: 8px;
+  font-size: 14px;
+  color: var(--ink);
+  line-height: 1.5;
+}
+
+.tag-facts p {
+  margin: 0;
+}
+
+.tag-facts span {
+  color: var(--sub);
+  font-weight: 700;
+}
+
+.tag-facts b.is-高 {
+  color: #e11d48;
+}
+
+.tag-facts b.is-中 {
+  color: #d97706;
+}
+
+.tag-facts b.is-低 {
+  color: #059669;
+}
+
 .tag-summary {
   margin-top: 4px;
   font-size: 14px;
   color: var(--ink);
   line-height: 1.5;
+}
+
+.tag-summary span {
+  color: var(--sub);
+  font-weight: 700;
 }
 
 .tag-corner {
@@ -241,6 +277,12 @@
   }
 }
 
+@media (max-width: 460px) {
+  .tag-sort-btn {
+    padding: 4px 8px;
+  }
+}
+
 @media (max-width: 640px) {
   .score-title {
     padding: 16px 16px 0;
@@ -285,6 +327,7 @@
 
   .tag-meaning,
   .tag-data,
+  .tag-facts,
   .tag-summary {
     font-size: 13px;
   }

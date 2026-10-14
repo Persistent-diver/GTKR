@@ -1,5 +1,6 @@
 <script setup>
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import BoardDialog from './BoardDialog.vue'
 import PlayIcon from './PlayIcon.vue'
 import SectionHead from './SectionHead.vue'
 import { keywords, videos } from '../../data/demo.js'
@@ -11,8 +12,10 @@ const active = ref(null)
 const player = ref(null)
 const playing = ref(false)
 const copied = ref(false)
+const cloudCopied = ref('')
 const visibleCount = 5
 let copyTimer = 0
+let cloudTimer = 0
 
 watch(active, (val) => {
   document.body.style.overflow = val ? 'hidden' : ''
@@ -48,10 +51,7 @@ function onKeydown(event) {
   if (event.key === 'Escape') closeVideo()
 }
 
-async function copyLink() {
-  if (!active.value) return
-  track(TrackEvent.VIDEO_LINK_COPY, { no: active.value.no, title: active.value.title })
-  const text = active.value.link
+async function writeText(text) {
   try {
     await navigator.clipboard.writeText(text)
   } catch {
@@ -65,6 +65,21 @@ async function copyLink() {
     document.execCommand('copy')
     area.remove()
   }
+}
+
+async function copyCloud(text) {
+  await writeText(text)
+  cloudCopied.value = text
+  window.clearTimeout(cloudTimer)
+  cloudTimer = window.setTimeout(() => {
+    cloudCopied.value = ''
+  }, 1600)
+}
+
+async function copyLink() {
+  if (!active.value) return
+  track(TrackEvent.VIDEO_LINK_COPY, { no: active.value.no, title: active.value.title })
+  await writeText(active.value.link)
   copied.value = true
   window.clearTimeout(copyTimer)
   copyTimer = window.setTimeout(() => {
@@ -94,6 +109,7 @@ onBeforeUnmount(() => {
   window.removeEventListener('resize', fitListHeight)
   window.removeEventListener('keydown', onKeydown)
   window.clearTimeout(copyTimer)
+  window.clearTimeout(cloudTimer)
   document.body.style.overflow = ''
 })
 </script>
@@ -107,13 +123,19 @@ onBeforeUnmount(() => {
     />
 
     <div class="card cloud">
-      <div class="cloud-title">这个方向整体在讲什么 —— 关键词云图</div>
+      <div class="cloud-title">
+        这个方向整体在讲什么 —— 关键词云图
+        <span v-if="cloudCopied" class="cloud-copied">已复制 {{ cloudCopied }}</span>
+      </div>
       <div class="cloud-wrap">
-        <span
+        <button
           v-for="word in keywords"
           :key="word.text"
+          type="button"
           :class="`cw-${word.level}`"
-        >{{ word.text }}</span>
+          :aria-label="`复制${word.text}`"
+          @click="copyCloud(word.text)"
+        >{{ word.text }}</button>
       </div>
     </div>
 
@@ -144,6 +166,11 @@ onBeforeUnmount(() => {
             <b v-if="part.bold">{{ part.text }}</b>
             <template v-else>{{ part.text }}</template>
           </template>
+          <div class="v-metrics">
+            <span>播放量 <b>{{ video.plays }}</b></span>
+            <span>点赞量 <b>{{ video.likes }}</b></span>
+            <span>评论量 <b>{{ video.comments }}</b></span>
+          </div>
         </div>
       </div>
       </div>
@@ -151,9 +178,7 @@ onBeforeUnmount(() => {
 
     <Teleport to="body">
       <Transition name="pop">
-        <div v-if="active" class="video-modal" @click.self="closeVideo">
-        <div class="video-dialog" role="dialog" aria-modal="true" :aria-label="active.title">
-          <button type="button" class="vm-close" aria-label="关闭" @click="closeVideo">×</button>
+        <BoardDialog v-if="active" badge="视频详情" :label="active.title" @close="closeVideo">
           <div class="vm-layout" :class="{ 'is-playing': playing }">
             <button
               v-if="!playing"
@@ -178,9 +203,14 @@ onBeforeUnmount(() => {
             ></video>
             <div class="vm-body">
               <div class="vm-intro">
-                <div class="vm-line">视频标题：<b>{{ active.origin }}</b></div>
-                <div class="vm-line">视频标题翻译：<b>{{ active.title }}</b></div>
-                <div class="vm-line">博主名称：<b>{{ active.author }}</b></div>
+                <div class="vm-block">
+                  <span class="vm-k">视频标题：</span>
+                  <div class="vm-v">
+                    <b>{{ active.origin }}</b>
+                    <div class="vm-tr"><span class="icon" aria-hidden="true">translate</span>{{ active.title }}</div>
+                  </div>
+                </div>
+                <div class="vm-line">博主名：<b>{{ active.author }}</b></div>
                 <div class="vm-desc">
                   <span>视频内容：</span>
                   <template v-for="(part, index) in active.parts" :key="index">
@@ -201,8 +231,7 @@ onBeforeUnmount(() => {
               </div>
             </div>
           </div>
-          </div>
-        </div>
+        </BoardDialog>
       </Transition>
     </Teleport>
   </section>

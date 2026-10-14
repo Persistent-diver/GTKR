@@ -31,7 +31,13 @@ function chartOption(isNarrow) {
     yAxis: {
       type: 'value',
       name: '当日新增播放量（万）',
-      nameTextStyle: { color: '#64748b', fontSize: isNarrow ? 11 : 12 },
+      nameLocation: 'end',
+      nameGap: 4,
+      nameTextStyle: {
+        color: '#64748b',
+        fontSize: isNarrow ? 11 : 12,
+        align: 'left',
+      },
       splitLine: { lineStyle: { color: '#eef2f7' } },
       axisLabel: { color: '#64748b', fontSize: isNarrow ? 11 : 12 },
     },

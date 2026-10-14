@@ -18,13 +18,13 @@ export const account = reactive({
 
 let recordSeed = 9
 
-export function recharge(amount, gift = 0) {
+export function recharge(amount, gift = 0, channel = '支付宝') {
   const gained = amount + gift
   account.balance += gained
   account.records.unshift({
     id: recordSeed,
     title: '账户充值',
-    detail: gift ? `到账 ${amount} 元，赠送 ${gift} 元` : '微信支付',
+    detail: gift ? `${channel} · 到账 ${amount} 元，赠送 ${gift} 元` : channel,
     amount: gained,
     time: '刚刚',
   })

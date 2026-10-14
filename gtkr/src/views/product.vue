@@ -90,8 +90,24 @@ function fitKeywordList() {
   list.style.maxHeight = `${last.offsetTop + last.offsetHeight + extra}px`
 }
 
+function missingParams() {
+  const missing = []
+  if (!productName.value.trim()) missing.push('产品名称')
+  if (!productDesc.value.trim()) missing.push('产品详细描述')
+  if (!selectedRegion.value) missing.push('国家/地区')
+  return missing
+}
+
+function ensureParams(action) {
+  const missing = missingParams()
+  if (!missing.length) return true
+  showToast('请先填写任务参数', `请填写${missing.join('、')}后再${action}`)
+  return false
+}
+
 async function extractKeywords() {
   if (extractPhase.value === 'loading') return
+  if (!ensureParams('提炼关键词')) return
   extractPhase.value = 'loading'
   track(TrackEvent.PRODUCT_EXTRACT, {
     region: selectedRegion.value,
@@ -109,7 +125,7 @@ async function extractKeywords() {
   resultEl.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   flashed.value = true
   track(TrackEvent.PRODUCT_EXTRACT_SUCCESS, { count: keywords.value.length })
-  showToast('关键词深度提炼完毕', `已依据「${productName.value.trim() || '当前产品'}」生成 ${keywords.value.length} 个高爆款转化词库，点击执行任务即可调度数字员工！`)
+  showToast('关键词深度提炼完毕', `已依据「${productName.value.trim()}」生成 ${keywords.value.length} 个高爆款转化词库，点击执行任务即可调度数字员工！`)
   window.clearTimeout(flashTimer)
   flashTimer = window.setTimeout(() => {
     flashed.value = false
@@ -122,6 +138,7 @@ async function extractKeywords() {
 
 async function runKeyword(name) {
   if (runningName.value) return
+  if (!ensureParams('执行任务')) return
   if (account.balance < taskCost) {
     track(TrackEvent.PRODUCT_TASK_BLOCKED, { keyword: name, balance: account.balance })
     showToast('请先充值', `当前余额 ${account.balance.toFixed(2)}，执行任务需要 ${taskCost.toFixed(2)}`, {
@@ -140,7 +157,7 @@ async function runKeyword(name) {
   addTask({
     mode: 'product',
     title: name,
-    detail: `基于产品「${productName.value.trim() || '当前产品'}」提炼的高转化分析任务`,
+    detail: `基于产品「${productName.value.trim()}」提炼的高转化分析任务`,
     region: region?.name || '',
     action: '跳转结果报告',
     icon: 'summarize',

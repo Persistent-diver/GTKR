@@ -1,5 +1,6 @@
 <script setup>
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import BoardDialog from './BoardDialog.vue'
 import SectionHead from './SectionHead.vue'
 import { creators } from '../../data/demo.js'
 import '../../assets/home/creator.css'
@@ -128,9 +129,7 @@ onBeforeUnmount(() => {
 
     <Teleport to="body">
       <Transition name="pop">
-        <div v-if="active" class="creator-modal" @click.self="closeCreator">
-          <div class="creator-dialog" role="dialog" aria-modal="true" aria-label="博主详细信息">
-            <button type="button" class="creator-close" aria-label="关闭" @click="closeCreator">×</button>
+        <BoardDialog v-if="active" badge="博主账号" label="博主详细信息" @close="closeCreator">
             <div class="creator-field">
               <span>名称</span>
               <b>@{{ active.name }}</b>
@@ -173,8 +172,7 @@ onBeforeUnmount(() => {
               <h3>商业痕迹</h3>
               <p>简介里没有商务联系方式，作品里没有「广告」标注，尚未商业化。</p>
             </section>
-          </div>
-        </div>
+        </BoardDialog>
       </Transition>
     </Teleport>
   </section>

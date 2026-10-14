@@ -96,16 +96,42 @@
   color: var(--main-dark);
 }
 
+.v-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--sub);
+}
+
+.v-metrics b {
+  color: var(--ink);
+  font-weight: 800;
+}
+
 .cloud {
   padding: 30px 24px;
   margin-top: 16px;
 }
 
 .cloud-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
   font-size: 17px;
   font-weight: 700;
   color: var(--sub);
-  margin-bottom: 20px;
+}
+
+.cloud-copied {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #e0f2fe;
+  color: #0369a1;
+  font-size: 12px;
+  font-weight: 800;
 }
 
 .cloud-wrap {
@@ -114,6 +140,21 @@
   justify-content: center;
   align-items: center;
   gap: 14px 22px;
+  width: 100%;
+  padding: 8px;
+}
+
+.cloud-wrap button {
+  border: none;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.cloud-wrap button:hover,
+.cloud-wrap button:focus-visible {
+  text-decoration: underline;
+  outline: none;
 }
 
 .cw-1 {
@@ -313,7 +354,6 @@
   flex-direction: column;
   gap: 16px;
   min-width: 0;
-  padding-right: 28px;
 }
 
 .vm-line {
@@ -323,8 +363,51 @@
 }
 
 .vm-line + .vm-line,
-.vm-line + .vm-desc {
+.vm-line + .vm-desc,
+.vm-block + .vm-line,
+.vm-block + .vm-desc,
+.vm-line + .vm-block {
   margin-top: 8px;
+}
+
+.vm-block {
+  display: flex;
+  align-items: flex-start;
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--sub);
+}
+
+.vm-k {
+  flex-shrink: 0;
+}
+
+.vm-v {
+  min-width: 0;
+}
+
+.vm-v > b {
+  color: var(--ink);
+}
+
+.vm-tr {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  margin-top: 2px;
+  color: #94a3b8;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.vm-tr .icon {
+  flex-shrink: 0;
+  font-family: "Material Symbols Outlined";
+  font-size: 15px;
+  font-weight: normal;
+  font-style: normal;
+  line-height: 1.45;
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 20;
 }
 
 .vm-line b {
@@ -446,16 +529,28 @@
     grid-row: 1;
     align-self: center;
     min-width: 0;
-    padding-right: 32px;
+    padding-right: 0;
   }
 
-  .vm-line {
+  .vm-line,
+  .vm-block {
     font-size: 13px;
   }
 
   .vm-line + .vm-line,
-  .vm-line + .vm-desc {
+  .vm-line + .vm-desc,
+  .vm-block + .vm-line,
+  .vm-block + .vm-desc,
+  .vm-line + .vm-block {
     margin-top: 4px;
+  }
+
+  .vm-tr {
+    font-size: 12px;
+  }
+
+  .vm-tr .icon {
+    font-size: 14px;
   }
 
   .vm-desc {

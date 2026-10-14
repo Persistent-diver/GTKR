@@ -1,4 +1,4 @@
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 
 export const regions = [
   { id: 'us', name: '美国-纽约',  },
@@ -52,6 +52,8 @@ export const taskRows = reactive([
 ])
 
 let taskSeed = 5
+
+export const execStatus = ref('执行中')
 
 export const currentTask = reactive({
   id: taskRows[0].id,

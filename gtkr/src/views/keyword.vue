@@ -1,6 +1,6 @@
 <script setup>
 import { onUnmounted, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { account, spend, taskCost } from '../data/account.js'
 import { addTask, regions } from '../data/task.js'
 import { targetLangs, translateVariants } from '../data/translate.js'
@@ -11,6 +11,7 @@ defineProps({
   embedded: { type: Boolean, default: false },
 })
 
+const route = useRoute()
 const router = useRouter()
 const selectedRegion = ref('us')
 const keyword = ref('')
@@ -75,6 +76,14 @@ watch(targetLang, () => {
   if (variants.value.length && keyword.value.trim()) runTranslate()
 })
 
+watch(
+  () => route.query.keyword,
+  (value) => {
+    if (typeof value === 'string' && value.trim()) keyword.value = value.trim()
+  },
+  { immediate: true },
+)
+
 async function runTranslate() {
   const text = keyword.value.trim()
   if (!text) {
@@ -98,7 +107,14 @@ function applyVariant(item) {
 
 async function submitTask() {
   if (running.value) return
-  const text = keyword.value.trim() || '当前关键词'
+  const text = keyword.value.trim()
+  const missing = []
+  if (!text) missing.push('关键词')
+  if (!selectedRegion.value) missing.push('国家/地区')
+  if (missing.length) {
+    showToast('请先填写任务参数', `请填写${missing.join('、')}后再执行任务`)
+    return
+  }
   if (account.balance < taskCost) {
     track(TrackEvent.KEYWORD_TASK_BLOCKED, { keyword: text, balance: account.balance })
     showToast('请先充值', `当前余额 ${account.balance.toFixed(2)}，执行任务需要 ${taskCost.toFixed(2)}`, {
@@ -170,9 +186,16 @@ onUnmounted(() => {
                   @input="resetTranslations"
                 >
                 <div class="translate-tools">
-                  <button type="button" class="translate-btn" :disabled="translating" @click="runTranslate">
-                    {{ translating ? '翻译中' : '翻译' }}
-                  </button>
+                  <span class="translate-action" :class="{ 'is-busy': translating }">
+                    <button type="button" class="translate-btn" :disabled="translating" aria-label="翻译" @click="runTranslate">
+                      <svg viewBox="0 0 1024 1024" aria-hidden="true">
+                        <path d="M871.24 443.3H120.56a32 32 0 0 1 0-64h750.68a32 32 0 0 1 0 64z" />
+                        <path d="M875.42 443.3a31.86 31.86 0 0 1-21.24-8L627.72 234a32 32 0 1 1 42.52-48l226.46 201.38a32 32 0 0 1-21.28 56zM875.44 646.7H124.76a32 32 0 1 1 0-64h750.68a32 32 0 0 1 0 64z" />
+                        <path d="M347.02 848a31.88 31.88 0 0 1-21.26-8L99.3 638.62a32 32 0 1 1 42.52-47.84L368.28 792a32 32 0 0 1-21.26 56z" />
+                      </svg>
+                    </button>
+                    <span class="translate-tip" role="tooltip">{{ translating ? '翻译中' : '翻译' }}</span>
+                  </span>
                   <select v-model="targetLang" class="translate-lang" aria-label="选择翻译语种">
                     <option v-for="item in langOptions" :key="item.value" :value="item.value">{{ item.label }}</option>
                   </select>

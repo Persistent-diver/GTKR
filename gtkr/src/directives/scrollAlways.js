@@ -5,36 +5,40 @@ function update(el) {
   const thumb = el.__saThumb
   if (!track || !thumb) return
   const maxScroll = el.scrollHeight - el.clientHeight
-  if (maxScroll <= 1) {
+  const rect = el.getBoundingClientRect()
+  const viewTop = Math.max(rect.top, 0)
+  const viewBottom = Math.min(rect.bottom, window.innerHeight)
+  const visibleH = viewBottom - viewTop
+  if (maxScroll <= 1 || visibleH < 24 || rect.width < 8) {
     track.style.display = 'none'
     return
   }
   track.style.display = ''
-  const trackH = el.clientHeight - GAP * 2
+  track.style.top = `${viewTop + GAP}px`
+  track.style.left = `${rect.right - GAP - 6}px`
+  const trackH = visibleH - GAP * 2
   track.style.height = `${trackH}px`
-  track.style.transform = `translateY(${el.scrollTop}px)`
   const thumbH = Math.max(28, (trackH * el.clientHeight) / el.scrollHeight)
-  const maxTop = trackH - thumbH
+  const maxTop = Math.max(0, trackH - thumbH)
   thumb.style.height = `${thumbH}px`
   thumb.style.transform = `translateY(${(el.scrollTop / maxScroll) * maxTop}px)`
 }
 
 export default {
   mounted(el) {
-    if (getComputedStyle(el).position === 'static') {
-      el.style.position = 'relative'
-    }
     el.classList.add('sa-host')
     const track = document.createElement('div')
     track.className = 'sa-track'
     const thumb = document.createElement('div')
     thumb.className = 'sa-thumb'
     track.appendChild(thumb)
-    el.appendChild(track)
+    document.body.appendChild(track)
     el.__saTrack = track
     el.__saThumb = thumb
     el.__saUpdate = () => update(el)
     el.addEventListener('scroll', el.__saUpdate, { passive: true })
+    window.addEventListener('scroll', el.__saUpdate, { passive: true, capture: true })
+    window.addEventListener('resize', el.__saUpdate)
     el.__saResize = new ResizeObserver(el.__saUpdate)
     el.__saResize.observe(el)
     el.__saMut = new MutationObserver(el.__saUpdate)
@@ -46,6 +50,8 @@ export default {
   },
   unmounted(el) {
     el.removeEventListener('scroll', el.__saUpdate)
+    window.removeEventListener('scroll', el.__saUpdate, true)
+    window.removeEventListener('resize', el.__saUpdate)
     el.__saResize?.disconnect()
     el.__saMut?.disconnect()
     el.__saTrack?.remove()

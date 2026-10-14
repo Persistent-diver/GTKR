@@ -1,12 +1,17 @@
 <script setup>
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import BoardDialog from './BoardDialog.vue'
+import PlayIcon from './PlayIcon.vue'
 import SectionHead from './SectionHead.vue'
 import { gaugePanelHeight } from '../../data/boardLayout.js'
 import { comments, videos } from '../../data/demo.js'
+import { TrackEvent, track } from '../../track'
 import '../../assets/home/comment.css'
 
 const listEl = ref(null)
 const active = ref(null)
+const player = ref(null)
+const playing = ref(false)
 const copied = ref(false)
 const visibleCount = 5
 const showMore = ref(comments.map(() => false))
@@ -21,7 +26,10 @@ const rows = comments.map((item) => {
     no: video ? video.no : '',
     link: video ? video.link : '',
     likes: video ? video.likes : '',
-    commentCount: video ? video.comments : '',
+    plays: video ? video.plays : '',
+    videoOrigin: video ? video.origin : '',
+    videoTitle: video ? video.title : '',
+    author: video ? video.author : '',
   }
 })
 
@@ -31,7 +39,19 @@ watch(active, (val) => {
 
 function openComment(row) {
   copied.value = false
+  playing.value = false
   active.value = row
+}
+
+async function startPlay() {
+  if (active.value) track(TrackEvent.VIDEO_PLAY, { no: active.value.no, title: active.value.videoTitle })
+  playing.value = true
+  await nextTick()
+  try {
+    await player.value?.play()
+  } catch {
+    // 浏览器拦住自动播放时，控件仍可手动播放
+  }
 }
 
 async function copyLink() {
@@ -58,7 +78,9 @@ async function copyLink() {
 }
 
 function closeComment() {
+  if (player.value) player.value.pause()
   active.value = null
+  playing.value = false
 }
 
 function onKeydown(event) {
@@ -149,36 +171,65 @@ onBeforeUnmount(() => {
 
     <Teleport to="body">
       <Transition name="pop">
-        <div v-if="active" class="comment-modal" @click.self="closeComment">
-        <div class="comment-dialog" role="dialog" aria-modal="true" aria-label="评论详情">
-          <button type="button" class="comment-close" aria-label="关闭" @click="closeComment">×</button>
-          <div class="comment-detail-head">
-            <div class="comment-cover" :style="{ background: active.gradient }">{{ active.no }}</div>
-            <div class="comment-detail-side">
-              <div class="comment-detail-label">视频内容</div>
-              <div class="comment-detail-video">
-                <template v-for="(part, partIndex) in active.parts" :key="partIndex">
-                  <b v-if="part.bold">{{ part.text }}</b>
-                  <template v-else>{{ part.text }}</template>
-                </template>
+        <BoardDialog v-if="active" badge="视频与热评" label="评论详情" @close="closeComment">
+          <div class="vm-layout" :class="{ 'is-playing': playing }">
+            <button
+              v-if="!playing"
+              type="button"
+              class="vm-cover"
+              :style="{ background: active.gradient }"
+              aria-label="播放"
+              @click="startPlay"
+            >
+              <span class="vm-no">{{ active.no }}</span>
+              <span class="vm-play" aria-hidden="true">
+                <PlayIcon color="#0f172a" :size="16" />
+              </span>
+            </button>
+            <video
+              v-else
+              ref="player"
+              class="vm-cover vm-player"
+              src="/preview.mp4"
+              controls
+              playsinline
+            ></video>
+            <div class="vm-body">
+              <div class="vm-intro">
+                <div class="vm-block">
+                  <span class="vm-k">视频标题：</span>
+                  <div class="vm-v">
+                    <b>{{ active.videoOrigin }}</b>
+                    <div class="vm-tr"><span class="icon" aria-hidden="true">translate</span>{{ active.videoTitle }}</div>
+                  </div>
+                </div>
+                <div class="vm-line">博主名：<b>{{ active.author }}</b></div>
+                <div class="vm-line">播放量：<b>{{ active.plays }}</b></div>
+                <div class="vm-desc">
+                  <span>视频内容：</span>
+                  <template v-for="(part, partIndex) in active.parts" :key="partIndex">
+                    <b v-if="part.bold">{{ part.text }}</b>
+                    <template v-else>{{ part.text }}</template>
+                  </template>
+                </div>
               </div>
-              <div class="comment-detail-stats">
-                <div><span>点赞</span><b>{{ active.likes }}</b></div>
-                <div><span>评论</span><b>{{ active.commentCount }}</b></div>
-              </div>
-              <div class="comment-detail-link">
+              <div class="vm-link">
                 <span>视频链接</span>
                 <code>{{ active.link }}</code>
                 <button type="button" @click="copyLink">{{ copied ? '已复制' : '复制' }}</button>
               </div>
             </div>
           </div>
-          <div class="comment-detail-label">评论原文</div>
-          <div class="comment-origin is-full">{{ active.origin }}</div>
-          <div class="comment-detail-label">评论翻译</div>
-          <div class="comment-detail-trans is-full">{{ active.text }}</div>
+          <div class="comment-extra">
+            <div class="vm-block">
+              <span class="vm-k">评论原文：</span>
+              <div class="vm-v">
+                <b>{{ active.origin }}</b><span class="comment-like">点赞量 {{ active.likes }}</span>
+                <div class="vm-tr"><span class="icon" aria-hidden="true">translate</span>{{ active.text }}</div>
+              </div>
+            </div>
           </div>
-        </div>
+        </BoardDialog>
       </Transition>
     </Teleport>
   </section>

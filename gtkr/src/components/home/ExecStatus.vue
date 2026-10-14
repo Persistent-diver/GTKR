@@ -3,18 +3,27 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import SectionHead from './SectionHead.vue'
 import { auth } from '../../data/auth.js'
 import { logMessages } from '../../data/demo.js'
-import { currentTask } from '../../data/task.js'
+import { currentTask, execStatus } from '../../data/task.js'
 import { TrackEvent, track } from '../../track'
 import '../../assets/home/exec.css'
 
-const status = ref('执行中')
+const status = execStatus
 const finished = computed(() => status.value === '执行完成')
 const taskName = computed(() => currentTask.title)
+const keywordText = computed(() => currentTask.title || '未设置关键字')
+const keywordRegion = computed(() => currentTask.region || '未选择地区')
+const keywordLang = computed(() => currentTask.lang || '')
+const keywordTranslation = computed(() => {
+  const text = currentTask.translation || ''
+  if (!text || text === currentTask.title) return ''
+  return text
+})
 const startedAt = '今天 08:00'
 
 const doingMessages = logMessages.filter((text) => text.startsWith('正在'))
 const currentLog = ref(null)
 const copied = ref(false)
+const reelPlaying = ref(false)
 const clock = new Date(2026, 9, 12, 8, 0, 0)
 const feedPhoto = 'https://lh3.googleusercontent.com/aida-public/AB6AXuCq9ufAVnjmGM0tMrl9139PWb0NTKqAlY5by-6nJuinxyaVndIwY3v2kqstwIig_l6aNpt9NY6vjtpkFii8NWe6nmK6zAFZa-O2iU4wwgbZgDW04M9WBltZ44AdFZH6WQIwqXY9_U4A2fH-_4DT0VmwdoKgIdNXvOXL1lTiF6T8uviftGsH11SbfwBShn8P2ZkbxKJWfGSLk6sgeyK_tk_YaDPvE-070_BLQW0BgQuam8ptMQnU3dqWRw'
 const feedAvatar = 'https://lh3.googleusercontent.com/aida-public/AB6AXuD7eZNEL7oL6ccbMBd-JjHnzJOfets62SRiSUKQW_khZFsNYev6Uic70x27qh0ffCH7_R_jUiAqrBzTNhDya1i_yyXTplHoU3SeT2V46tDF8YsoMU83snCAQzHj8RyfSy-Myyzc9ST6Lgys9aeN3D-TqFcOK995exA_-AV2-p5yDHHd-ZRK1oKx15iHAmBzLEg5xbOJqECZlMvhR6ZJxxMfghwOGGU9KR4POqZyXhUJd-g9ef9Rm-4m5w'
@@ -46,6 +55,7 @@ function maskUser(user) {
 }
 
 async function copyShareLink() {
+  if (!finished.value) return
   const sharer = encodeURIComponent(maskUser(auth.user))
   const link = `${window.location.origin}/board?share=glowmaker&sharer=${sharer}`
   track(TrackEvent.REPORT_EXPORT, { task: taskName.value, format: 'link' })
@@ -99,28 +109,55 @@ onBeforeUnmount(() => {
               </svg>
             </div>
             <div class="worker-name">小张 · 内容分析岗</div>
-            <div class="worker-meta">
-              状态：<b>{{ status }}</b><br />
-              当前任务：<b>{{ taskName }}</b><br />
-              开始时间：<b>{{ startedAt }}</b><br />
-              今日已分析：<b>{{ finished ? '100 / 100' : '23 / 100' }}</b> 条<br />
-              平均每条耗时：<b>约38秒</b>
-              <div v-if="!finished && currentLog" class="worker-doing">{{ currentLog.text }}</div>
-            </div>
+            <dl class="worker-meta">
+              <div>
+                <dt>状态</dt>
+                <dd>{{ status }}</dd>
+              </div>
+              <div>
+                <dt>关键字</dt>
+                <dd class="is-ellipsis">{{ keywordText }}</dd>
+              </div>
+              <div>
+                <dt>地区</dt>
+                <dd>{{ keywordRegion }}</dd>
+              </div>
+              <div v-if="keywordLang">
+                <dt>语种</dt>
+                <dd>{{ keywordLang }}</dd>
+              </div>
+              <div v-if="keywordTranslation">
+                <dt>译文</dt>
+                <dd>{{ keywordTranslation }}</dd>
+              </div>
+              <div>
+                <dt>开始时间</dt>
+                <dd>{{ startedAt }}</dd>
+              </div>
+              <div>
+                <dt>今日已分析</dt>
+                <dd>{{ finished ? '100 / 100' : '23 / 100' }} 条</dd>
+              </div>
+              <div>
+                <dt>平均每条耗时</dt>
+                <dd>约38秒</dd>
+              </div>
+            </dl>
+            <p v-if="!finished && currentLog" class="worker-doing">{{ currentLog.text }}</p>
             <button v-if="finished" type="button" class="export-btn" @click="copyShareLink">
               {{ copied ? '已复制' : '复制分享链接' }}
             </button>
           </div>
 
-          <div v-if="!finished" class="reel">
-            <div class="reel-stage">
+          <div v-if="!finished" class="reel" :class="{ 'is-paused': !reelPlaying }">
+            <div class="reel-stage" @click="reelPlaying = !reelPlaying">
               <div class="reel-slide">
                 <img class="reel-photo" alt="" :src="feedPhoto" />
                 <div class="reel-shade top"></div>
                 <div class="reel-shade bottom"></div>
 
                 <header class="reel-top">
-                  <span class="reel-icon" aria-hidden="true">
+                  <span class="reel-icon is-live" aria-hidden="true">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                       <path d="M15 10l4.55-2.28A1 1 0 0121 8.62v6.76a1 1 0 01-1.45.9L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
                     </svg>
@@ -129,7 +166,7 @@ onBeforeUnmount(() => {
                     <span>Following</span>
                     <span class="on">For You<i></i></span>
                   </div>
-                  <span class="reel-icon" aria-hidden="true">
+                  <span class="reel-icon is-search" aria-hidden="true">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                       <path d="M21 21l-4.35-4.35M16.65 11a5.65 5.65 0 11-11.3 0 5.65 5.65 0 0111.3 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" />
                     </svg>
@@ -186,6 +223,18 @@ onBeforeUnmount(() => {
                     </div>
                   </aside>
                 </div>
+
+                <button
+                  v-if="!reelPlaying"
+                  type="button"
+                  class="reel-play"
+                  aria-label="播放"
+                  @click.stop="reelPlaying = true"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M8 5.5v13l11-6.5-11-6.5z" />
+                  </svg>
+                </button>
 
                 <footer class="reel-tabbar" aria-hidden="true">
                   <span class="on">

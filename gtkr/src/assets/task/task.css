@@ -282,7 +282,7 @@
 }
 
 .task input.with-translate {
-  padding-right: 176px;
+  padding-right: 148px;
 }
 
 .task input.with-lang {
@@ -320,17 +320,54 @@
   box-shadow: 0 0 0 2px #e0f2fe;
 }
 
+.translate-action {
+  position: relative;
+  display: inline-flex;
+}
+
 .translate-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
   height: 32px;
-  padding: 0 12px;
+  padding: 0;
   border: none;
   border-radius: 8px;
   background: #0ea5e9;
   color: #fff;
-  font: inherit;
-  font-size: 13px;
-  font-weight: 700;
   cursor: pointer;
+}
+
+.translate-btn svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+.translate-tip {
+  position: absolute;
+  z-index: 5;
+  right: 0;
+  top: calc(100% + 10px);
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: #0f172a;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.4;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.translate-action:hover .translate-tip,
+.translate-action:focus-within .translate-tip,
+.translate-action.is-busy .translate-tip {
+  opacity: 1;
+  visibility: visible;
 }
 
 .translate-btn:hover {
@@ -346,7 +383,7 @@
   display: flex;
   align-items: baseline;
   gap: 8px;
-  margin-top: 8px;
+  margin-top: 32px;
   padding: 10px 12px;
   background: #f0f9ff;
   border: 1px solid #bae6fd;
@@ -1073,7 +1110,7 @@
   align-items: flex-start;
   gap: 12px;
   width: min(420px, calc(100vw - 32px));
-  padding: 16px;
+  padding: 16px 40px 16px 16px;
   border-radius: 12px;
   background: #0f172a;
   color: #fff;
@@ -1125,8 +1162,23 @@
 }
 
 .toast-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: 6px;
   background: transparent;
   color: #dae2fd;
+}
+
+.toast-close .icon {
+  color: inherit;
+  font-size: 18px;
 }
 
 .spin {

@@ -135,7 +135,7 @@ async function submit() {
   await delay(700)
   if (!alive) return
   const redirect = route.query.redirect
-  await router.push(typeof redirect === 'string' ? redirect : { name: 'radar' })
+  await router.push(typeof redirect === 'string' ? redirect : { name: 'keywords' })
 }
 </script>
 
